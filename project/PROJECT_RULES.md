@@ -62,7 +62,7 @@
 - [ ] Tool list is defined and minimal (least privilege)
 - [ ] Agent extracts structured data (JSON/Zod schema) BEFORE calling any tool
 - [ ] Session memory is maintained within a conversation (messages array passed to LLM)
-- [ ] HITL triggers: >85 pax, high amount, low completeness, complex request
+- [ ] HITL triggers: >85 pax, completeness < 70% (one clarification email then human takes over), special conditions mentioned by client
 
 ### Data Model
 - [ ] Demandes table: all required fields (see list in CLAUDE.md)
@@ -82,10 +82,10 @@
 
 ### Follow-up System
 - [ ] n8n Schedule Trigger configured (daily or 2-minute demo mode)
-- [ ] Query: leads with status "Quote Sent" + no response + passed follow-up date
-- [ ] Idempotency check: relance_count < 2 before sending
-- [ ] After 2nd follow-up: status → "Closed"
-- [ ] Emails are logged (relance_count incremented, next_relance_date updated)
+- [ ] Query: leads with Status = "Quote Sent" or "Follow-up 1" AND next_followup_at ≤ today
+- [ ] Check relance_count < 2 before sending — if = 2, set status "Closed" instead
+- [ ] After sending: relance_count + 1, update next_followup_at, update status
+- [ ] Accepted / Refused updated manually by salesperson in Airtable (no inbound email parsing)
 
 ### Security & Compliance
 - [ ] Client message separated from system instructions in prompts
@@ -139,7 +139,7 @@ Test these paths before July 1:
 | Implementing both n8n and Vercel AI SDK as brain | Two agents fighting, broken state |
 | Building a corner chatbot instead of central UI | Misunderstands the brief |
 | Hardcoding pricing coefficients | Client cannot update them, breaks the brief requirement |
-| Forgetting idempotency on follow-ups | Same lead gets 6 follow-up emails during demo |
+| Not checking relance_count before sending follow-up | Same lead gets duplicate emails during demo |
 | Not testing with n8n accessible publicly | Demo fails if localhost not tunneled |
 | Only one person speaks at defense | 25 pts lost for silent members |
 | Missing the L1 deadline | 15 pts gone, no recovery |

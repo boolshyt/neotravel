@@ -538,13 +538,13 @@ These are the things your team must align on. Each is a fork in the road — wro
 
 ### Decision 1: Stack Option A (n8n) or Option B (Vercel AI SDK)?
 
-|                | Option A — n8n AI Agent           | Option B — Vercel AI SDK           |
-| -------------- | --------------------------------- | ---------------------------------- |
-| Who it's for   | Comfortable with no-code/low-code | Comfortable in TypeScript/React    |
-| AI brain       | n8n AI Agent node                 | Vercel AI SDK in Next.js           |
-| n8n role       | Everything                        | Back-office (relances, CRM writes) |
-| Dashboard      | Airtable Interface (no-code)      | Custom React/Next.js page          |
-| Difficulty     | Lower                             | Higher                             |
+|                | Option A — n8n AI Agent                     | Option B — Vercel AI SDK             |
+| -------------- | ------------------------------------------- | ------------------------------------ |
+| Who it's for   | Comfortable with no-code/low-code           | Comfortable in TypeScript/React      |
+| AI brain       | n8n AI Agent node                           | Vercel AI SDK in Next.js             |
+| n8n role       | Everything                                  | Back-office (relances, CRM writes)   |
+| Dashboard      | Airtable Interface (no-code)                | Custom React/Next.js page            |
+| Difficulty     | Lower                                       | Higher                               |
 | Recommendation | Works standalone, Claude is blind to n8n UI | **✅ RECOMMENDED with Claude Cowork** |
 
 **Use Option B.** The key factor: Claude Cowork works with *files*. With Option A, the AI agent lives inside n8n's browser UI — Claude can't read or edit it, so you're constantly copy-pasting between Claude and n8n. When something breaks, Claude can't see the workflow to debug it. With Option B, everything is TypeScript files in your GitHub repo — Claude reads, writes, and fixes all of it directly. You run `npm run dev`, paste an error, Claude fixes the file. The "technical difficulty" of Option B disappears when Claude is doing the coding. The only n8n you need is a minimal one for scheduled follow-ups (2 nodes, 15 minutes to set up).
@@ -589,9 +589,9 @@ Do not mix both.
 ### Phase 0 — Align & Setup (June 22, Today)
 **Goal:** Everyone understands the project and tools are ready.
 
-- [ ] Read project documents (all three team members)
-- [ ] Decide: Stack A or B?
-- [ ] Decide: Chatbot or form?
+- [x] Read project documents (all three team members)
+- [x] Decide: Stack A or B?
+- [x] Decide: Chatbot or form?
 - [ ] Define HITL thresholds
 - [ ] Create GitHub repo + invite collaborators
 - [ ] Create accounts: LLM API, Airtable or Supabase, Resend, Vercel

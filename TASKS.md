@@ -20,18 +20,18 @@
 > No tools or setup needed — this is a writing task. The draft is already in `L1_DOSSIER_DE_CADRAGE.md`.
 > Each person writes their section and pushes. Gendell submits the final PDF.
 
-| # | Who | Task | Detail |
-|---|---|---|---|
-| 1 | **Gendell** | Read the full draft | Open `L1_DOSSIER_DE_CADRAGE.md` and read through all 9 sections |
-| 2 | **Gendell** | Push to GitHub | `git add . && git commit -m "docs: L1 draft" && git push` so the team can access it |
-| 3 | **Inde** | Pull the repo | `git pull` to get the latest version |
-| 4 | **Inde** | Write Section 2.1 | Add 2–3 paragraphs in French in Section 2.1: what NeoTravel does today, why the manual process is a problem, what automation changes for the business |
-| 5 | **Inde** | Push your changes | `git add L1_DOSSIER_DE_CADRAGE.md && git commit -m "docs: add business analysis" && git push` |
-| 6 | **Yahia** | Pull the repo | `git pull` to get the latest version |
-| 7 | **Yahia** | Write competitor section | In Section 9, add 2–3 competitor examples (name + one line each — e.g. GetTransfer, Mozio, Autocars.com) |
-| 8 | **Yahia** | Push your changes | `git add L1_DOSSIER_DE_CADRAGE.md && git commit -m "docs: add competitor research" && git push` |
-| 9 | **Gendell** | Final review | Pull latest, read the full document with all additions, adjust anything off |
-| 10 | **Gendell** | Submit | Export to PDF and submit on the Epitech platform before **June 24 at 23:59** |
+| #   | Who         | Task                     | Detail                                                                                                                                                |
+| --- | ----------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Gendell** | Read the full draft      | Open `L1_DOSSIER_DE_CADRAGE.md` and read through all 9 sections                                                                                       |
+| 2   | **Gendell** | Push to GitHub           | `git add . && git commit -m "docs: L1 draft" && git push` so the team can access it                                                                   |
+| 3   | **Inde**    | Pull the repo            | `git pull` to get the latest version                                                                                                                  |
+| 4   | **Inde**    | Write Section 2.1        | Add 2–3 paragraphs in French in Section 2.1: what NeoTravel does today, why the manual process is a problem, what automation changes for the business |
+| 5   | **Inde**    | Push your changes        | `git add L1_DOSSIER_DE_CADRAGE.md && git commit -m "docs: add business analysis" && git push`                                                         |
+| 6   | **Yahia**   | Pull the repo            | `git pull` to get the latest version                                                                                                                  |
+| 7   | **Yahia**   | Write competitor section | In Section 9, add 2–3 competitor examples (name + one line each — e.g. GetTransfer, Mozio, Autocars.com)                                              |
+| 8   | **Yahia**   | Push your changes        | `git add L1_DOSSIER_DE_CADRAGE.md && git commit -m "docs: add competitor research" && git push`                                                       |
+| 9   | **Gendell** | Final review             | Pull latest, read the full document with all additions, adjust anything off                                                                           |
+| 10  | **Gendell** | Submit                   | Export to PDF and submit on the Epitech platform before **June 24 at 23:59**                                                                          |
 
 ---
 
@@ -91,28 +91,33 @@
 |---|---|---|
 | 1 | Create workflow | n8n → New Workflow → name it "Lead Qualification" |
 | 2 | Add Webhook node | Entry point — copy the webhook URL and share it with Inde |
-| 3 | Add Gemini node | Google Gemini Chat Model → connect API key → select `gemini-2.0-flash` |
-| 4 | Write system prompt | Role, rules, tone, escalation (see `project/PROJECT_RULES.md`) |
-| 5 | Add Code node | Implement `calculer_devis()` (full formula in `project/PRICING_ENGINE.md`) — the AI calls this, never estimates prices itself |
-| 6 | Add Airtable node | Connect API key → base "NeoTravel CRM" → table "Demandes" → map form fields to columns |
-| 7 | Test | Use "Test Webhook" with fake data → confirm lead appears in Airtable |
+| 3 | Add Airtable node | Save lead immediately → base "NeoTravel CRM" → table "Demandes" → Status: "New Lead" |
+| 4 | Add Gemini node | Google Gemini Chat Model → connect API key → model `gemini-2.0-flash` → check completeness score + passenger count |
+| 5 | Write system prompt | Role, rules, tone (see `project/PROJECT_RULES.md`) — AI only evaluates completeness, never calculates prices |
+| 6 | Add If node (passengers) | If passengers > 85 → update Status: "Complex Case" → send acknowledgment email → stop |
+| 7 | Add If node (completeness) | If score < 70% → update Status: "Incomplete" → send clarification email → stop |
+| 8 | Add Code node | Implement `calculer_devis()` (full formula in `project/PRICING_ENGINE.md`) — takes distance_km from form data |
+| 9 | Add PDF generation | Generate quote PDF from calculer_devis() output |
+| 10 | Add Resend node | Send email + PDF to client |
+| 11 | Add Airtable update node | Status: "Quote Sent" → set NextRelanceAt (J+2 if urgent, J+3 if standard) |
+| 12 | Test | Submit fake form data → confirm lead in Airtable + email received with PDF |
 
 **Workflow 2 — Follow-up Scheduler**
 
 | # | Task | Detail |
 |---|---|---|
 | 1 | Create workflow | New Workflow → name it "Follow-up Scheduler" |
-| 2 | Add Schedule Trigger | Every 2 minutes (for demo purposes) |
-| 3 | Add Airtable node | Query: Status = "Devis envoyé" AND NextRelanceAt ≤ today |
-| 4 | Add If node | RelanceCount < 2 → true: send follow-up / false: update status to "Clôturé" |
-| 5 | Add Resend node | Connect Inde's Resend API key → send follow-up email |
-| 6 | Add Airtable update node | RelanceCount +1, set new NextRelanceAt date |
+| 2 | Add Schedule Trigger | Every 2 minutes (demo) — change to daily for production |
+| 3 | Add Airtable node | Query: Status = "Quote Sent" OR "Follow-up 1" AND NextRelanceAt ≤ today |
+| 4 | Add If node | RelanceCount < 2 → true: send follow-up email / false: update Status to "Closed" |
+| 5 | Add Resend node | Send follow-up email (true branch only) |
+| 6 | Add Airtable update node | RelanceCount +1 → update Status ("Follow-up 1" or "Follow-up 2") → set new NextRelanceAt |
 
 ### Inde — Conversational Form
 
 | # | Task | Detail |
 |---|---|---|
-| 1 | Build multi-step form | One question per screen, progress bar, French copy — steps: client type → name → email → phone → departure → destination → date → passengers → trip type → urgency → comment → confirmation |
+| 1 | Build multi-step form | One question per screen, progress bar, French copy — steps: client type → name → email → phone → departure → destination → date → passengers → trip type → urgency → **distance approximative (km)** → comment → confirmation |
 | 2 | Connect to n8n | On submit: POST form data as JSON to the `N8N_WEBHOOK_URL` from `.env.local` (get URL from Gendell) |
 | 3 | Test | Submit the form → ask Gendell to confirm the lead appeared in Airtable |
 | 4 | Push | `git add . && git commit -m "feat: add lead capture form" && git push` |
@@ -149,15 +154,15 @@
 
 ### Who does what
 
-| Who | Task | Detail |
-|---|---|---|
-| **Gendell** | Run all 5 scenarios | Fix anything that breaks |
-| **Gendell** | Set up ngrok | `npm install -g ngrok` → `ngrok http 5678` → share public URL with Inde for live demo |
-| **Gendell** | Confirm dashboard | Airtable Interface shows pipeline correctly |
-| **Inde** | Write L3 — technical doc | How to install and run the system from scratch: clone, env setup, n8n start, next.js start |
-| **Inde** | Write L3 — usage doc | How a salesperson uses the Airtable dashboard day-to-day (non-technical) |
-| **Inde** | Submit L2 + L3 | Before **June 29 at 23:59** |
-| **Yahia** | Test as a real client | Submit 3 requests (standard, urgent, >85 passengers) → report what worked and what didn't |
+| Who         | Task                     | Detail                                                                                     |
+| ----------- | ------------------------ | ------------------------------------------------------------------------------------------ |
+| **Gendell** | Run all 5 scenarios      | Fix anything that breaks                                                                   |
+| **Gendell** | Set up ngrok             | `npm install -g ngrok` → `ngrok http 5678` → share public URL with Inde for live demo      |
+| **Gendell** | Confirm dashboard        | Airtable Interface shows pipeline correctly                                                |
+| **Inde**    | Write L3 — technical doc | How to install and run the system from scratch: clone, env setup, n8n start, next.js start |
+| **Inde**    | Write L3 — usage doc     | How a salesperson uses the Airtable dashboard day-to-day (non-technical)                   |
+| **Inde**    | Submit L2 + L3           | Before **June 29 at 23:59**                                                                |
+| **Yahia**   | Test as a real client    | Submit 3 requests (standard, urgent, >85 passengers) → report what worked and what didn't  |
 
 ---
 

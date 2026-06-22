@@ -91,49 +91,155 @@ Le prototype couvre les 10 fonctions suivantes :
 
 **Coût total estimé : 0 €/mois** pour le prototype et la démonstration.
 
-### 4.2 Schéma d'architecture
+### 4.2 Architecture Schema
 
 ```
-┌─────────────────────────────────────────────────┐
-│           CLIENT (navigateur)                   │
-│   Formulaire conversationnel multi-étapes       │
-│   (Next.js · Vercel)                            │
-└──────────────────────┬──────────────────────────┘
-                       │ POST JSON (webhook)
-                       ▼
-┌─────────────────────────────────────────────────┐
-│              n8n — Workflow 1                   │
-│           "Qualification des Leads"             │
-│                                                 │
-│  [Webhook] → [Agent IA Gemini]                  │
-│                    │                            │
-│          ┌─────────┼──────────┐                 │
-│          ▼         ▼          ▼                 │
-│  [calculer_devis()] [Écriture  [Escalade        │
-│  Code node          Airtable]  humaine]         │
-│          │                                      │
-│          ▼                                      │
-│  [Génération PDF] → [Envoi email via Resend]    │
-└─────────────────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────┐
-│              n8n — Workflow 2                   │
-│           "Relances Automatiques"               │
-│                                                 │
-│  [Schedule Trigger — quotidien]                 │
-│       → [Airtable : leads à relancer ?]         │
-│       → [If relance_count < 2]                  │
-│       → [Email relance via Resend]              │
-│       → [Mise à jour Airtable]                  │
-└─────────────────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────┐
-│         Airtable — Base "NeoTravel CRM"         │
-│   Dashboard pipeline (Airtable Interface)       │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                     INPUT LAYER                              │
+│        Multi-step form (Next.js · Vercel)                    │
+│                                                              │
+│  Name · Email · Phone · Departure · Destination             │
+│  Date · Passengers · Trip type · Urgency · Distance (km)    │
+└───────────────────────────┬──────────────────────────────────┘
+                            │ POST JSON
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│           n8n WORKFLOW 1 — Lead Qualification                │
+│                                                              │
+│  [Webhook]                                                   │
+│      │                                                       │
+│      ▼                                                       │
+│  [Save to Airtable → Status: "New Lead"]                     │
+│      │                                                       │
+│      ▼                                                       │
+│  [Gemini AI — check completeness + passenger count]          │
+│      │                                                       │
+│      ├─── passengers > 85 ──────────────────────────────┐   │
+│      │                                                   ▼   │
+│      │                                    [Status: "Complex Case"] │
+│      │                                    [Send ack email to client] │
+│      │                                    [Alert sales team]  │
+│      │                                    → ■ STOP           │
+│      │                                                       │
+│      ├─── score < 70% ────────────────────────────────┐     │
+│      │                                                 ▼     │
+│      │                              [Status: "Incomplete"]   │
+│      │                              [Send clarification email] │
+│      │                              → ■ STOP (human takes over) │
+│      │                                                       │
+│      └─── score ≥ 70% AND passengers ≤ 85 ── QUALIFIED ─┐   │
+│                                                          ▼   │
+│                                          [calculer_devis()]  │
+│                                          (distance_km from   │
+│                                           form · passengers  │
+│                                           · date · urgency   │
+│                                           · trip_type)       │
+│                                              │               │
+│                                              ▼               │
+│                                          [Generate PDF]      │
+│                                              │               │
+│                                              ▼               │
+│                                          [Send email + PDF   │
+│                                           via Resend]        │
+│                                              │               │
+│                                              ▼               │
+│                                          [Status: "Quote Sent"] │
+│                                          [Set next_followup_at] │
+│                                          → HAND OFF TO WF 2  │
+└──────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│           n8n WORKFLOW 2 — Follow-up Scheduler               │
+│                                                              │
+│  [Schedule Trigger — every 2 min (demo) / daily (prod)]      │
+│      │                                                       │
+│      ▼                                                       │
+│  [Fetch Airtable: Status = "Quote Sent" or "Follow-up 1"    │
+│   AND next_followup_at ≤ today]                              │
+│      │                                                       │
+│      ▼                                                       │
+│  [relance_count < 2?]                                        │
+│      │                                                       │
+│      ├─── NO ──→ [Status: "Closed"] → ■ STOP                │
+│      │                                                       │
+│      └─── YES ─→ [Send follow-up email via Resend]          │
+│                  [relance_count + 1]                         │
+│                  [Status: "Follow-up 1" or "Follow-up 2"]   │
+│                  [Set next_followup_at]                      │
+│                  [Update Airtable] → ■ DONE                 │
+└──────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│         AIRTABLE — Central State Layer + Dashboard           │
+│                                                              │
+│  Every status change is written here.                        │
+│  Airtable Interface = real-time pipeline view for the team.  │
+│                                                              │
+│  New Lead → Incomplete → Quote Sent → Follow-up 1           │
+│  → Follow-up 2 → Closed / Complex Case                      │
+│                                                              │
+│  Accepted / Refused updated manually by salesperson.         │
+└──────────────────────────────────────────────────────────────┘
 ```
+
+### Explanation
+
+The system runs two n8n workflows connected through Airtable. Workflow 1 fires on form submission: the lead is saved to Airtable immediately, then Gemini evaluates two conditions in sequence — passenger count and completeness score. If either fails, the lead is flagged and a human takes over. If both pass, the qualified path runs: `calculer_devis()` computes the price from the form data (including distance entered by the client), a PDF is generated, and the quote is emailed in under five minutes.
+
+Workflow 2 runs on a schedule and handles post-quote follow-ups. It fetches leads that are due for a follow-up, checks the relance counter, sends the email if the limit has not been reached, or closes the lead if it has.
+
+The AI does exactly one thing: evaluate completeness. It never touches pricing. Quote acceptance and refusal are updated manually in Airtable by the sales team — this is realistic for the MVP and avoids the complexity of inbound email parsing.
+
+---
+
+### Business Rules and Triggers
+
+- Every lead is saved to Airtable on arrival, before any qualification — no lead is ever lost
+- Gemini evaluates completeness on a 0–100 scale; below 70% triggers the incomplete path
+- Passenger count above 85 always routes to Complex Case regardless of completeness score
+- `calculer_devis()` is the only source of price — the AI never estimates or approximates a figure
+- Distance is provided by the client directly in the form as an approximate value in km
+- Follow-up timing is set at quote send time: urgent leads (departure within 72h) → J+2; standard leads → J+3 then J+7
+- Maximum 2 follow-ups per lead; after the second, the lead is automatically closed
+- Quote status (Accepted / Refused) is updated manually by the salesperson in Airtable
+- Pricing coefficients (seasonality, urgency, capacity, margin) live in the Airtable `Matrices` table and can be edited without touching code
+
+---
+
+### Lead End States
+
+- **Accepted** — salesperson marks quote accepted in Airtable; human team takes over for booking
+- **Refused** — salesperson marks quote refused; lead is closed
+- **Closed** — no reply after 2 follow-ups; automatically closed by Workflow 2
+- **Complex Case** — passenger count > 85 or data too incomplete; requires human handling
+- **Incomplete** — clarification email sent; awaiting client reply; human monitors in Airtable
+
+---
+
+### Workflow Logic by Scenario
+
+**1. Complete standard lead**
+Form submitted with all fields including distance_km, ≤ 85 passengers → AI scores ≥ 70% → `calculer_devis()` called → PDF generated → email sent → status: "Quote Sent" → follow-up scheduled at J+3, then J+7 if no reply → closed after 2 follow-ups with no response.
+
+**2. Incomplete lead**
+Form submitted with a missing required field → AI scores < 70% → clarification email sent → status: "Incomplete" → workflow stops. Sales team monitors Airtable and follows up manually if needed.
+
+**3. Urgent lead**
+Form submitted with departure within 72 hours → qualifies normally → urgency coefficient applied by `calculer_devis()` → quote sent → first follow-up at J+2 instead of J+3.
+
+**4. >85 passengers**
+Form submitted with 86+ passengers → AI detects passenger count → no quote generated → status: "Complex Case" → acknowledgment email sent to client → sales team alerted via Airtable.
+
+**5. No response after quote**
+Workflow 2 runs → lead is past its follow-up date and relance_count = 0 → follow-up 1 sent → relance_count set to 1. If still no response at J+7 → follow-up 2 sent → relance_count set to 2. Next run: relance_count = 2 → status set to "Closed".
+
+**6. Accepted quote**
+Salesperson receives client confirmation by email or phone → manually updates Airtable status to "Accepted" → Workflow 2 will no longer pick up this lead.
+
+**7. Refused quote**
+Salesperson learns client declined → manually updates Airtable status to "Refused" → lead closed, data retained for reporting.
+
+---
 
 ### 4.3 Principe de la tarification déterministe
 
@@ -173,12 +279,11 @@ Toute tarification passe par la fonction `calculer_devis()`, un bloc de code pur
 
 1. Le formulaire est soumis avec une destination manquante.
 2. L'agent IA détecte un score de complétude insuffisant (champ "Destination" absent).
-3. L'agent envoie un email automatique demandant la destination manquante : "Votre demande est presque complète ! Pourriez-vous nous préciser votre ville de destination ?"
+3. Un email automatique est envoyé au client : "Votre demande est presque complète ! Pourriez-vous nous préciser votre ville de destination ?"
 4. Le lead est enregistré dans Airtable avec le statut "Incomplet".
-5. Si le client répond : le lead est mis à jour et reprend le parcours nominal.
-6. Si aucune réponse après 2 tentatives : statut "Cas Complexe", alerte pour un commercial.
+5. Un commercial prend le relais depuis le tableau de bord Airtable pour finaliser la demande manuellement.
 
-**Résultat :** Aucun lead perdu par manque d'information — le système relance intelligemment.
+**Résultat :** Aucun lead perdu — chaque demande incomplète est visible dans le pipeline et assignée à un commercial.
 
 ---
 
