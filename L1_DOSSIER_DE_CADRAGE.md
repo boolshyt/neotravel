@@ -79,15 +79,15 @@ Le prototype couvre les 10 fonctions suivantes :
 
 ### 4.1 Stack technologique
 
-| Composant | Outil | Justification |
-|---|---|---|
-| Frontend / Interface client | Next.js (React) | Framework standard, déployable en un clic sur Vercel, gratuit |
-| Orchestrateur IA | n8n (self-hosted) | Moteur de workflow visuel, gestion de l'agent IA, des relances et des connexions aux APIs — gratuit en local |
-| Modèle de langage | Gemini 2.0 Flash (Google) | Gratuit (1 500 requêtes/jour), bien supporté par n8n, suffisant pour la qualification et la conversation |
-| Base de données + Dashboard | Airtable | Gratuit, interface no-code pour le pipeline commercial, pas de développement dashboard nécessaire |
-| Envoi d'emails | Resend | Gratuit (3 000 emails/mois), API simple, supporte les pièces jointes PDF |
-| Déploiement | Vercel | Gratuit, déploiement automatique depuis GitHub |
-| Versioning | GitHub | Gratuit, collaboration entre membres de l'équipe |
+| Composant                   | Outil                     | Justification                                                                                                |
+| --------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Frontend / Interface client | Next.js (React)           | Framework standard, déployable en un clic sur Vercel, gratuit                                                |
+| Orchestrateur IA            | n8n (self-hosted)         | Moteur de workflow visuel, gestion de l'agent IA, des relances et des connexions aux APIs — gratuit en local |
+| Modèle de langage           | Gemini 2.0 Flash (Google) | Gratuit (1 500 requêtes/jour), bien supporté par n8n, suffisant pour la qualification et la conversation     |
+| Base de données + Dashboard | Airtable                  | Gratuit, interface no-code pour le pipeline commercial, pas de développement dashboard nécessaire            |
+| Envoi d'emails              | Resend                    | Gratuit (3 000 emails/mois), API simple, supporte les pièces jointes PDF                                     |
+| Déploiement                 | Vercel                    | Gratuit, déploiement automatique depuis GitHub                                                               |
+| Versioning                  | GitHub                    | Gratuit, collaboration entre membres de l'équipe                                                             |
 
 **Coût total estimé : 0 €/mois** pour le prototype et la démonstration.
 
