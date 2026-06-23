@@ -18,20 +18,57 @@
 ## PHASE 0 — Dossier de Cadrage L1 _(rendu le 24 juin à 23h59)_
 
 > Aucun outil ni configuration nécessaire — c'est une tâche de rédaction. Le brouillon est déjà dans `L1_DOSSIER_DE_CADRAGE.md`.
-> Chaque personne rédige sa section et fait un push. Gendell soumet le PDF final.
+> Chaque personne rédige ses sections et fait un push. Gendell fait la relecture finale et soumet le PDF.
 
-| #   | Qui         | Tâche                          | Détail                                                                                                                                                              |
-| --- | ----------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Gendell** | Lire le brouillon complet      | Ouvrir `L1_DOSSIER_DE_CADRAGE.md` et lire les 9 sections                                                                                                            |
-| 2   | **Gendell** | Pousser sur GitHub             | `git add . && git commit -m "docs: brouillon L1" && git push` pour que l'équipe puisse y accéder                                                                    |
-| 3   | **Inde**    | Récupérer le dépôt             | `git pull` pour obtenir la dernière version                                                                                                                          |
-| 4   | **Inde**    | Rédiger la Section 2.1         | Ajouter 2–3 paragraphes en français dans la Section 2.1 : ce que fait NeoTravel aujourd'hui, pourquoi le processus manuel est un problème, ce que l'automatisation change |
-| 5   | **Inde**    | Pousser ses modifications      | `git add L1_DOSSIER_DE_CADRAGE.md && git commit -m "docs: ajout analyse métier" && git push`                                                                         |
-| 6   | **Yahia**   | Récupérer le dépôt             | `git pull` pour obtenir la dernière version                                                                                                                          |
-| 7   | **Yahia**   | Rédiger la section concurrents | Dans la Section 9, ajouter 2–3 exemples de concurrents (nom + une ligne chacun — ex. GetTransfer, Mozio, Autocars.com)                                              |
-| 8   | **Yahia**   | Pousser ses modifications      | `git add L1_DOSSIER_DE_CADRAGE.md && git commit -m "docs: ajout veille concurrentielle" && git push`                                                                 |
-| 9   | **Gendell** | Relecture finale               | Récupérer la dernière version, lire le document complet avec tous les ajouts, corriger ce qui ne va pas                                                              |
-| 10  | **Gendell** | Soumettre                      | Exporter en PDF et soumettre sur la plateforme Epitech avant le **24 juin à 23h59**                                                                                  |
+### Ce qui manque encore dans le L1 (identifié via le brief officiel)
+
+| Section manquante | Requis par le barème ? | Qui |
+|---|---|---|
+| Analyse concurrentielle | ✅ Oui (7 pts analyse problème) | **Inde** |
+| Cartographie processus As-Is / To-Be | ✅ Oui (7 pts analyse problème) | **Inde** |
+| Matrice de priorisation des problématiques | ✅ Oui (7 pts analyse problème) | **Yahia** |
+| Matrice de priorisation des solutions | ✅ Oui (7 pts analyse problème) | **Yahia** |
+| KPIs chiffrés + risques/limites | ✅ Oui (mentionné explicitement) | **Yahia** |
+| Justification du choix de modèle IA (6 critères) | ✅ Oui (8 pts cadrage technique) | **Gendell** |
+| Sections 4.2+ à traduire en français | ✅ Oui (cohérence du document) | **Gendell** |
+
+---
+
+### Tâches L1 — Inde
+
+> **Contexte :** Le brouillon L1 existe déjà (`L1_DOSSIER_DE_CADRAGE.md` sur GitHub). Il couvre la présentation de l'entreprise, la problématique, la solution, l'architecture, les scénarios, le modèle de données et les règles métier. Ce qui manque pour les **7 pts "Analyse & priorisation"** : l'analyse concurrentielle et la cartographie As-Is/To-Be.
+
+| #   | Tâche                                                | Détail                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | `git pull`                                           | Récupérer la dernière version du dépôt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 2   | **Ajouter une section "Analyse Concurrentielle"**    | Créer une nouvelle Section 10 dans le L1. Lister 3–4 concurrents directs ou indirects (ex : GetTransfer, Autocars.com, Mozio, OuiBus groupes, agences de voyage locales). Pour chaque concurrent : nom, positionnement en 1 ligne, ce qu'ils font que NeoTravel ne fait pas (ou mal). Conclure avec le différenciateur de NeoTravel : expertise terrain + accompagnement humain + prix négociés avec partenaires locaux.                                                                                                                                                 |
+| 3   | **Ajouter une section "Cartographie As-Is / To-Be"** | Créer une Section 11. **As-Is (situation actuelle)** : lead arrive → commercial le voit (ou pas) → qualification manuelle → calcul à la main → email avec devis → relance si le commercial y pense → pas de traçabilité. **To-Be (avec notre solution)** : lead arrive → sauvegardé immédiatement dans Airtable → qualification IA en < 30 sec → `calculer_devis()` → PDF envoyé en < 5 min → relances automatiques J+2 ou J+3/J+7 → pipeline visible en temps réel. Format : tableau comparatif ou deux colonnes (avant / après) — pas besoin d'un vrai diagramme BPMN. |
+| 4   | Push                                                 | `git add L1_DOSSIER_DE_CADRAGE.md && git commit -m "docs: ajout concurrent + as-is/to-be" && git push`                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+
+---
+
+### Tâches L1 — Yahia
+
+> **Contexte :** Le brouillon L1 existe déjà (`L1_DOSSIER_DE_CADRAGE.md` sur GitHub). Il manque les matrices de priorisation et les KPIs — éléments explicitement cités dans le barème pour les **7 pts "Analyse & priorisation"**.
+
+| #   | Tâche                                                        | Détail                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| --- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `git pull`                                                   | Récupérer la dernière version du dépôt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| 2   | **Ajouter une "Matrice de priorisation des problématiques"** | Créer une Section 12. Tableau avec les 6 frictions identifiées dans le L1 (leads non traités, délais trop longs, pas de relances, qualification chronophage, aucune traçabilité, tarification manuelle). Pour chaque friction : noter Impact CA (1–3), Impact client (1–3), Urgence (1–3), Complexité à résoudre (1–3). Calculer un score total. La friction avec le score le plus élevé = priorité n°1.                                                                                                                                                          |
+| 3   | **Ajouter une "Matrice de priorisation des solutions"**      | Tableau avec les 10 fonctions de la solution (capture, CRM, qualification, calcul devis, PDF, email, relances, HITL, tableau de bord, traçabilité). Pour chaque fonction : Valeur métier (1–3), Faisabilité en 1 semaine (1–3), Coût (1–3), Délai d'implémentation estimé. Identifier les P1 (MVP obligatoire), P2 (important), P3 (bonus).                                                                                                                                                                                                                       |
+| 4   | **Ajouter les KPIs et risques**                              | Créer une Section 13. **KPIs à suivre :** taux de leads traités (objectif : 100% vs ~40% aujourd'hui), délai moyen d'envoi du devis (objectif : < 5 min vs 24–48h), taux de relance effectif (objectif : 100% vs aléatoire), nombre de leads en statut "Cas Complexe" par semaine. **Risques :** n8n down pendant la démo (mitigation : ngrok stable + test la veille), Gemini rate-limit (mitigation : 1 500 req/jour gratuit, largement suffisant pour la démo), distance_km saisie incorrecte par le client (mitigation : champ obligatoire avec placeholder). |
+| 5   | Push                                                         | `git add L1_DOSSIER_DE_CADRAGE.md && git commit -m "docs: ajout matrices priorisation + KPIs + risques" && git push`                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+
+---
+
+### Tâches L1 — Gendell (finitions)
+
+| #   | Tâche | Détail |
+|-----|-------|--------|
+| 1 | **Traduire les sections en anglais** | Dans le L1, les sections 4.2 (explication architecture), "Business Rules and Triggers", "Lead End States", "Workflow Logic by Scenario" sont en anglais — les traduire en français |
+| 2 | **Ajouter justification modèle IA** | Dans la section 4 (Architecture), ajouter un paragraphe justifiant Gemini 2.0 Flash selon les 6 critères du brief : coût (gratuit, 1 500 req/jour), qualité (suffisant pour évaluation de complétude), latence (< 2 sec), sorties structurées (JSON natif), limites (pas de calcul de prix), adéquation (bien supporté par n8n) |
+| 3 | **Relecture finale** | `git pull` → lire le document complet avec tous les ajouts → corriger incohérences |
+| 4 | **Soumettre** | Exporter en PDF et soumettre avant le **24 juin à 23h59** |
 
 ---
 
