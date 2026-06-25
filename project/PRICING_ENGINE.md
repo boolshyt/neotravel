@@ -94,14 +94,7 @@ S'applique AVANT l'ajout des options.
 | 68 – 85 | +40% (× 1,40) |
 | > 85 | **STOP — orienter vers le commercial** |
 
-### Coefficient 4 — Marge
-
-Toujours appliquer :
-```
-× 1,15  (+15% de marge commerciale)
-```
-
-### Étape 3 : Ajouter les Options (montants forfaitaires par option)
+### Étape 3 : Ajouter les Options (coûts fixes, AVANT la marge)
 
 | Option | Coût |
 |--------|------|
@@ -109,7 +102,17 @@ Toujours appliquer :
 | Hébergement chauffeur nuit | +120 € / nuit |
 | Péages | Forfait par route (récupérer en BDD) |
 
-### Étape 4 : Appliquer la TVA
+### Étape 4 : Appliquer la Marge Commerciale
+
+La marge de **+15 %** s'applique sur le **sous-total complet** (prix ajusté par les coefficients + coûts des options) :
+
+```
+prix_ht = (prix_avec_coefficients + coût_total_options) × 1,15
+```
+
+> ⚠️ La marge n'est PAS appliquée uniquement sur le prix de base — elle englobe également les options pour garantir la cohérence de la marge sur chaque devis.
+
+### Étape 5 : Appliquer la TVA
 
 ```
 TVA = 10%
@@ -121,16 +124,23 @@ prix_ttc = prix_ht × 1,10
 ## Formule de Calcul Complète
 
 ```
+// Étape 1 : Prix de base (barème ou formule >180 km)
 prix_base = barème_forfaitaire(distance_km)   // ou (km × 2) × 2,50 si > 180 km
-            × (2 si aller_retour sinon 1)
-            × coeff_saisonnalité
-            × coeff_urgence
-            × coeff_capacité
-            × 1,15                            // marge
 
-total_options = somme(coûts_options)
+// Étape 2 : Aller-retour (double le prix de base)
+prix_base = prix_base × (2 si aller_retour, sinon 1)
 
-prix_ht = prix_base + total_options
+// Étape 3 : Coefficients multiplicatifs (saisonnalité × urgence × capacité)
+prix_avec_coefficients = prix_base × coeff_saisonnalité × coeff_urgence × coeff_capacité
+
+// Étape 4 : Options — coûts fixes ajoutés AVANT la marge
+total_options = somme(coûts_options)          // Guide, Nuit, Péages
+sous_total = prix_avec_coefficients + total_options
+
+// Étape 5 : Marge (+15% appliquée sur le SOUS-TOTAL COMPLET)
+prix_ht = sous_total × 1,15
+
+// Étape 6 : TVA
 tva = prix_ht × 0,10
 prix_ttc = prix_ht + tva
 ```
@@ -236,7 +246,7 @@ export function calculer_devis(input: DevisInput): DevisOutput {
     base *= 2;
   }
 
-  // Étape 3 : Coefficients
+  // Étape 3 : Coefficients (sans marge — appliquée APRÈS les options)
   const seasonCoeff = getSeasonalityCoeff(input.date_depart);
   const urgencyCoeff = getUrgencyCoeff(input.date_demande, input.date_depart);
 
@@ -245,23 +255,28 @@ export function calculer_devis(input: DevisInput): DevisOutput {
   coefficients.push({ name: 'capacité', value: capacityCoeff });
   coefficients.push({ name: 'marge', value: 1.15 });
 
-  let prix_ht = base * seasonCoeff * urgencyCoeff * capacityCoeff * 1.15;
+  const prix_avec_coefficients = base * seasonCoeff * urgencyCoeff * capacityCoeff;
 
-  // Étape 4 : Options
+  // Étape 4 : Options — coûts fixes ajoutés AVANT la marge
+  let total_options = 0;
   if (input.options.includes('guide')) {
-    prix_ht += 80; // par jour — l'appelant doit multiplier par nb_jours
+    total_options += 80; // par jour — l'appelant doit multiplier par nb_jours
     lignes.push({ libelle: 'Guide/accompagnateur', montant: 80 });
   }
   if (input.options.includes('chauffeur_nuit')) {
-    prix_ht += 120; // par nuit — l'appelant doit multiplier par nb_nuits
+    total_options += 120; // par nuit — l'appelant doit multiplier par nb_nuits
     lignes.push({ libelle: 'Hébergement chauffeur nuit', montant: 120 });
   }
   if (input.options.includes('peages') && input.peages_flat_rate) {
-    prix_ht += input.peages_flat_rate;
+    total_options += input.peages_flat_rate;
     lignes.push({ libelle: 'Péages (forfait route)', montant: input.peages_flat_rate });
   }
 
-  // Étape 5 : TVA
+  // Étape 5 : Marge +15% appliquée sur le SOUS-TOTAL COMPLET (coefficients + options)
+  const sous_total = prix_avec_coefficients + total_options;
+  const prix_ht = sous_total * 1.15;
+
+  // Étape 6 : TVA
   const tva = prix_ht * 0.10;
   const prix_ttc = prix_ht + tva;
 

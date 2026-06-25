@@ -132,7 +132,7 @@
 | 4 | Ajouter un nœud Gemini | Google Gemini Chat Model → connecter la clé API → modèle `gemini-2.0-flash` → vérifier le score de complétude + nombre de passagers |
 | 5 | Rédiger le prompt système | Rôle, règles, ton (voir `project/PROJECT_RULES.md`) — l'IA évalue uniquement la complétude, ne calcule jamais les prix |
 | 6 | Ajouter un nœud If (passagers) | Si passagers > 85 → mettre à jour Statut : "Cas Complexe" → envoyer email d'accusé → arrêter |
-| 7 | Ajouter un nœud If (complétude) | Si score < 70% → mettre à jour Statut : "Incomplet" → envoyer email de clarification → arrêter |
+| 7 | Ajouter un nœud If (complétude) | Si score < 70% → mettre à jour Statut : "Incomplet" → envoyer email avec un **lien personnalisé vers `/clarification?id={lead_id}`** → arrêter. Sur cette page Next.js, un widget de chat IA collecte les champs manquants auprès du client, puis relance le webhook de qualification automatiquement |
 | 8 | Ajouter un nœud Code | Implémenter `calculer_devis()` (formule complète dans `project/PRICING_ENGINE.md`) — prend distance_km depuis les données du formulaire |
 | 9 | Ajouter la génération PDF | Générer le devis PDF à partir de la sortie de calculer_devis() |
 | 10 | Ajouter un nœud Resend | Envoyer l'email + PDF au client |
@@ -148,16 +148,17 @@
 | 3 | Ajouter un nœud Airtable | Requête : Statut = "Devis Envoyé" OU "Relance 1" ET ProchaineRelanceLe ≤ aujourd'hui |
 | 4 | Ajouter un nœud If | relance_count < 2 → vrai : envoyer email de relance / faux : mettre à jour Statut en "Clôturé" |
 | 5 | Ajouter un nœud Resend | Envoyer l'email de relance (branche vraie uniquement) |
-| 6 | Ajouter un nœud de mise à jour Airtable | relance_count +1 → mettre à jour le Statut ("Relance 1" ou "Relance 2") → définir la nouvelle ProchaineRelanceLe |
+| 6 | Ajouter un nœud de mise à jour Airtable | relance_count +1 → mettre à jour le Statut ("Relance 1" ou "Relance 2") → définir la nouvelle ProchaineRelanceLe : **si on vient d'envoyer la Relance 1 (relance_count devient 1), ajouter +4 jours à la date du jour** — ce qui donne J+7 depuis la date du devis initial (J+3 + 4 jours = J+7) |
 
 ### Inde — Formulaire Conversationnel
 
 | # | Tâche | Détail |
 |---|---|---|
 | 1 | Construire le formulaire multi-étapes | Une question par écran, barre de progression, copie en français — étapes : type de client → nom → email → téléphone → départ → destination → date → passagers → type de trajet → urgence → **distance approximative (km)** → commentaire → confirmation |
-| 2 | Connecter à n8n | À la soumission : envoyer les données du formulaire en JSON via POST à `N8N_WEBHOOK_URL` dans `.env.local` (obtenir l'URL de Gendell) |
-| 3 | Tester | Soumettre le formulaire → demander à Gendell de confirmer que le lead est apparu dans Airtable |
-| 4 | Pousser | `git add . && git commit -m "feat: ajout formulaire de capture" && git push` |
+| 2 | Créer la page `/clarification` | Page Next.js à l'URL `/clarification?id={lead_id}`. Affiche un widget de chat IA qui récupère les champs manquants via l'ID du lead (appel Airtable), interagit naturellement avec le client pour les collecter, puis renvoie les données complétées au webhook n8n pour relancer la qualification |
+| 3 | Connecter à n8n | À la soumission du formulaire principal : envoyer les données en JSON via POST à `N8N_WEBHOOK_URL` dans `.env.local` (obtenir l'URL de Gendell). La page `/clarification` utilise une URL webhook séparée fournie par Gendell |
+| 4 | Tester | Soumettre le formulaire → demander à Gendell de confirmer que le lead est apparu dans Airtable |
+| 5 | Pousser | `git add . && git commit -m "feat: ajout formulaire de capture + page clarification" && git push` |
 
 ---
 
