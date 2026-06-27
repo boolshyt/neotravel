@@ -180,7 +180,7 @@ export default function ChatPage() {
           E
         </div>
         <div>
-          <p className="font-semibold text-gray-900 text-sm">Emma</p>
+          <p className="font-semibold text-white text-sm">Emma</p>
           <p className="text-xs text-gray-500">Conseillère Transport · NeoTravel</p>
         </div>
         <div className="ml-auto flex items-center gap-2">

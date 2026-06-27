@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 
 // ── Types ───────────────────────────────────────────────────────────────────
 type Option = 'guide' | 'chauffeur_nuit' | 'peages';
@@ -214,16 +215,16 @@ export default function NeoTravelForm() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">Demande envoyée !</h1>
-          <p className="text-gray-600 mb-2">
+          <h1 className="text-2xl font-bold text-white mb-3">Demande envoyée !</h1>
+          <p className="text-gray-300 mb-2">
             Merci <strong>{data.prenom}</strong>, votre devis est en cours de préparation.
           </p>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-400 text-sm">
             Vous recevrez une réponse à <strong>{data.email}</strong> dans les plus brefs délais.
           </p>
-          <div className="mt-8 p-4 bg-blue-50 rounded-xl text-left">
-            <p className="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-2">Récapitulatif</p>
-            <ul className="text-sm text-gray-700 space-y-1">
+          <div className="mt-8 p-4 bg-navy text-white rounded-xl text-left">
+            <p className="text-xs text-olive font-semibold uppercase tracking-wide mb-2">Récapitulatif</p>
+            <ul className="text-sm text-gray-300 space-y-1">
               <li>🚌 {data.ville_depart} → {data.ville_arrivee}</li>
               <li>📅 {new Date(data.date_depart + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</li>
               <li>👥 {data.nb_passagers} passager{parseInt(data.nb_passagers) > 1 ? 's' : ''}</li>
@@ -238,24 +239,30 @@ export default function NeoTravelForm() {
   // ── Step content ───────────────────────────────────────────────────────────
   const stepContent = () => {
     const inputClass =
-      'w-full max-w-md border-0 border-b-2 border-gray-300 focus:border-blue-600 outline-none text-xl py-2 bg-transparent text-gray-900 placeholder-gray-400 transition-colors';
+      'w-full max-w-md border-0 border-b-2 border-gray-300 focus:border-blue-600 outline-none text-xl py-2 bg-transparent text-white placeholder-gray-400 transition-colors';
 
     switch (step) {
       // Welcome
       case 0:
         return (
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-8">
-              <span className="text-white text-2xl font-bold">N</span>
+          <div className="text-center"> 
+            <div className="mx-auto mb-2 w-89 h-89 relative -mt-8 border-4 border-white rounded-full overflow-hidden shadow-lg"> {/* Increased width/height here */}
+              <Image 
+                src="/NeoTravelLogo.png" 
+                alt="NeoTravel Logo" 
+                fill 
+                className="object-cover" 
+                priority
+              />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Obtenez votre devis transport</h1>
-            <p className="text-lg text-gray-500 mb-10 max-w-sm mx-auto">
+            <h1 className="text-4xl font-bold text-white mb-4">Obtenez votre devis transport</h1>
+            <p className="text-lg text-white mb-10 max-w-sm mx-auto">
               NeoTravel organise vos déplacements de groupe en France depuis 2010.
               Répondez à quelques questions — votre devis arrive par email.
             </p>
             <button
               onClick={() => setStep(1)}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-10 py-4 rounded-xl text-lg transition-colors shadow-md"
+              className="bg-olive hover:bg-white text-navy font-bold px-10 py-4 rounded-xl text-lg transition-colors shadow-md"
             >
               Commencer →
             </button>
@@ -268,7 +275,7 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 1 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Comment vous appelez-vous ?</h2>
+            <h2 className="text-3xl font-bold text-white mb-8">Comment vous appelez-vous ?</h2>
             <div className="space-y-6 max-w-md">
               <input
                 ref={inputRef as React.Ref<HTMLInputElement>}
@@ -296,8 +303,8 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 2 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Votre adresse email ?</h2>
-            <p className="text-gray-500 mb-8">Nous y enverrons votre devis.</p>
+            <h2 className="text-3xl font-bold text-white mb-2">Votre adresse email ?</h2>
+            <p className="text-gray-300 mb-8">Nous y enverrons votre devis.</p>
             <input
               ref={inputRef as React.Ref<HTMLInputElement>}
               type="email"
@@ -316,7 +323,7 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 3 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Votre numéro de téléphone ?</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">Votre numéro de téléphone ?</h2>
             <p className="text-gray-500 mb-8">Pour vous contacter si nécessaire.</p>
             <input
               ref={inputRef as React.Ref<HTMLInputElement>}
@@ -336,7 +343,7 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 4 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Quelle est la ville de départ ?</h2>
+            <h2 className="text-3xl font-bold text-white mb-8">Quelle est la ville de départ ?</h2>
             <input
               ref={inputRef as React.Ref<HTMLInputElement>}
               className={inputClass}
@@ -353,7 +360,7 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 5 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Et la ville d'arrivée ?</h2>
+            <h2 className="text-3xl font-bold text-white mb-8">Et la ville d'arrivée ?</h2>
             <input
               ref={inputRef as React.Ref<HTMLInputElement>}
               className={inputClass}
@@ -370,7 +377,7 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 6 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Quelle est la date de départ ?</h2>
+            <h2 className="text-3xl font-bold text-white mb-8">Quelle est la date de départ ?</h2>
             <input
               ref={inputRef as React.Ref<HTMLInputElement>}
               type="date"
@@ -388,8 +395,8 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 7 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Combien de passagers ?</h2>
-            <p className="text-gray-500 mb-8">
+            <h2 className="text-3xl font-bold text-white mb-2">Combien de passagers ?</h2>
+            <p className="text-gray-300 mb-8">
               Au-delà de 85 passagers, un commercial vous contactera personnellement.
             </p>
             <input
@@ -411,8 +418,8 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 8 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Distance estimée du trajet ?</h2>
-            <p className="text-gray-500 mb-8">En kilomètres. Une estimation suffit.</p>
+            <h2 className="text-3xl font-bold text-white mb-2">Distance estimée du trajet ?</h2>
+            <p className="text-gray-300 mb-8">En kilomètres. Une estimation suffit.</p>
             <div className="flex items-baseline gap-3 max-w-md">
               <input
                 ref={inputRef as React.Ref<HTMLInputElement>}
@@ -434,7 +441,7 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 9 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Aller simple ou aller-retour ?</h2>
+            <h2 className="text-3xl font-bold text-white mb-8">Aller simple ou aller-retour ?</h2>
             <div className="flex gap-4">
               {[
                 { label: '🚌 Aller simple', value: false },
@@ -463,8 +470,8 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 10 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Options souhaitées ?</h2>
-            <p className="text-gray-500 mb-8">Sélectionnez tout ce qui s'applique (facultatif).</p>
+            <h2 className="text-3xl font-bold text-white mb-2">Options souhaitées ?</h2>
+            <p className="text-gray-300 mb-8">Sélectionnez tout ce qui s'applique (facultatif).</p>
             <div className="flex flex-wrap gap-3">
               <OptionPill
                 label="🎤 Guide / accompagnateur"
@@ -493,11 +500,11 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Question 11 / {TOTAL_STEPS}</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Informations complémentaires ?</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">Informations complémentaires ?</h2>
             <p className="text-gray-500 mb-8">Type de groupe, horaires précis, contraintes particulières… (facultatif)</p>
             <textarea
               ref={inputRef as React.Ref<HTMLTextAreaElement>}
-              className="w-full max-w-md border-2 border-gray-200 focus:border-blue-600 outline-none text-base p-3 rounded-xl bg-white text-gray-900 placeholder-gray-400 transition-colors resize-none"
+              className="w-full max-w-md border-2 border-gray-200 focus:border-blue-600 outline-none text-base p-3 rounded-xl bg-white text-white placeholder-gray-400 transition-colors resize-none"
               rows={4}
               placeholder="Ex. Groupe scolaire, départ à 8h, retour avant 20h..."
               value={data.notes}
@@ -511,7 +518,7 @@ export default function NeoTravelForm() {
         return (
           <div>
             <p className="text-blue-600 text-sm font-semibold mb-2">Récapitulatif</p>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Tout est correct ?</h2>
+            <h2 className="text-3xl font-bold text-white mb-6">Tout est correct ?</h2>
             <div className="max-w-md bg-gray-50 rounded-2xl p-5 space-y-3 text-sm text-gray-700 mb-8">
               <div className="flex justify-between"><span className="text-gray-400">Nom</span><span className="font-medium">{data.prenom} {data.nom}</span></div>
               <div className="flex justify-between"><span className="text-gray-400">Email</span><span className="font-medium">{data.email}</span></div>
@@ -552,7 +559,7 @@ export default function NeoTravelForm() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex flex-col">
+    <div className="min-h-screen bg-navy text-white flex flex-col">
       {step > 0 && step <= TOTAL_STEPS && <ProgressBar step={step} />}
 
       <div
