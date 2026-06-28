@@ -11,8 +11,17 @@
 import type { ExternalMatrices } from './calculer-devis';
 
 const BASE_URL = 'https://api.airtable.com/v0';
-const BASE_ID  = process.env.AIRTABLE_BASE_ID!;
-const TOKEN    = process.env.AIRTABLE_TOKEN!;
+const BASE_ID  = process.env.AIRTABLE_BASE_ID ?? 'apphcmnoff5FWbIX4';
+const TOKEN    = process.env.AIRTABLE_API_KEY!; // same key as /api/calculer-devis
+
+// Table IDs (stable — résistent aux renommages dans Airtable)
+const TABLE_SAISON   = 'tblCbxzPXuZyYUe6x';
+const TABLE_URGENCE  = 'tblD7zzVlj9ryOXCk';
+const TABLE_CAPACITE = 'tbl2esvrFXZw4scLb';
+const TABLE_OPTIONS  = 'tblUg6GETOz04KWj1';
+const TABLE_PARAMS   = 'tblzng0gNx54Jl2qR';
+const TABLE_DEMANDES = 'tbl8ucaqSrDODAFNg';
+const TABLE_DEVIS    = 'tblSFo4ABzf4NI6X0';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -23,10 +32,10 @@ function headers() {
   };
 }
 
-async function fetchTable<T>(table: string): Promise<T[]> {
-  const url  = `${BASE_URL}/${BASE_ID}/${encodeURIComponent(table)}`;
-  const res  = await fetch(url, { headers: headers(), next: { revalidate: 300 } }); // cache 5 min
-  if (!res.ok) throw new Error(`Airtable ${table}: HTTP ${res.status}`);
+async function fetchTable<T>(tableId: string): Promise<T[]> {
+  const url  = `${BASE_URL}/${BASE_ID}/${tableId}?pageSize=100`;
+  const res  = await fetch(url, { headers: headers(), next: { revalidate: 60 } }); // cache 60 s
+  if (!res.ok) throw new Error(`Airtable ${tableId}: HTTP ${res.status}`);
   const json = await res.json();
   return (json.records as { fields: T }[]).map((r) => r.fields);
 }
@@ -54,11 +63,11 @@ const MOIS_MAP: Record<string, number> = {
 export async function fetchMatrices(): Promise<ExternalMatrices> {
   const [saisonRows, urgenceRows, capaciteRows, optionRows, paramRows] =
     await Promise.all([
-      fetchTable<SaisonRow>('Matrice_Saison'),
-      fetchTable<UrgenceRow>('Matrice_Urgence'),
-      fetchTable<CapaciteRow>('Matrice_Capacite'),
-      fetchTable<OptionRow>('Matrice_Options'),
-      fetchTable<ParamRow>('Parametres_Globaux'),
+      fetchTable<SaisonRow>(TABLE_SAISON),
+      fetchTable<UrgenceRow>(TABLE_URGENCE),
+      fetchTable<CapaciteRow>(TABLE_CAPACITE),
+      fetchTable<OptionRow>(TABLE_OPTIONS),
+      fetchTable<ParamRow>(TABLE_PARAMS),
     ]);
 
   // Saisonnalité : { mois: number, coefficient: number }[]
@@ -89,9 +98,12 @@ export async function fetchMatrices(): Promise<ExternalMatrices> {
     chauffeur_nuit: nuitRow?.montant_fixe   ?? 120,
   };
 
-  // Marge depuis Parametres_Globaux (clé = "marge")
-  const margeParam = paramRows.find((r) => r.cle === 'marge');
-  const marge = margeParam ? parseFloat(margeParam.valeur) : 1.15;
+  // Marge depuis Parametres_Globaux — supporte "marge_pct":"15" et "marge":"1.15"
+  let marge = 1.15;
+  const margePctParam = paramRows.find((r) => r.cle === 'marge_pct');
+  const margeParam    = paramRows.find((r) => r.cle === 'marge');
+  if (margePctParam) marge = 1 + parseFloat(margePctParam.valeur) / 100; // "15" → 1.15
+  else if (margeParam) marge = parseFloat(margeParam.valeur);             // "1.15" → 1.15
 
   return { saison, urgence, capacite, options, marge };
 }
@@ -113,7 +125,7 @@ export interface LeadData {
 }
 
 export async function saveLead(lead: LeadData): Promise<string> {
-  const url = `${BASE_URL}/${BASE_ID}/Demandes`;
+  const url = `${BASE_URL}/${BASE_ID}/${TABLE_DEMANDES}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: headers(),
@@ -157,7 +169,7 @@ export interface DevisData {
 }
 
 export async function saveDevis(devis: DevisData): Promise<string> {
-  const url = `${BASE_URL}/${BASE_ID}/Devis`;
+  const url = `${BASE_URL}/${BASE_ID}/${TABLE_DEVIS}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: headers(),

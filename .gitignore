@@ -24,6 +24,7 @@ CLAUDE.md
 # misc
 .DS_Store
 *.pem
+.obsidian/
 
 # debug
 npm-debug.log*
