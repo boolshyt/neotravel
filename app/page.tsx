@@ -208,21 +208,21 @@ export default function NeoTravelForm() {
   // ── Success screen ─────────────────────────────────────────────────────────
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4">
+      <div className="min-h-screen bg-navy flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-20 h-20 bg-olive/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-olive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-white mb-3">Demande envoyée !</h1>
           <p className="text-gray-300 mb-2">
-            Merci <strong>{data.prenom}</strong>, votre devis est en cours de préparation.
+            Merci <strong className="text-white">{data.prenom}</strong>, votre devis est en cours de préparation.
           </p>
           <p className="text-gray-400 text-sm">
-            Vous recevrez une réponse à <strong>{data.email}</strong> dans les plus brefs délais.
+            Vous recevrez une réponse à <strong className="text-white">{data.email}</strong> dans les plus brefs délais.
           </p>
-          <div className="mt-8 p-4 bg-navy text-white rounded-xl text-left">
+          <div className="mt-8 p-4 bg-white/10 border border-white/20 text-white rounded-xl text-left">
             <p className="text-xs text-olive font-semibold uppercase tracking-wide mb-2">Récapitulatif</p>
             <ul className="text-sm text-gray-300 space-y-1">
               <li>🚌 {data.ville_depart} → {data.ville_arrivee}</li>
@@ -261,7 +261,7 @@ export default function NeoTravelForm() {
             </p>
             <button
               onClick={() => setStep(1)}
-              className="bg-olive hover:bg-white text-navy font-bold px-10 py-4 rounded-xl text-lg transition-colors shadow-md"
+              className="bg-olive hover:bg-olive/80 text-navy font-bold px-10 py-4 rounded-xl text-lg transition-colors shadow-md"
             >
               Commencer →
             </button>
@@ -441,7 +441,7 @@ export default function NeoTravelForm() {
           <div>
             <p className="text-olive text-sm font-semibold mb-2">Question 9 / {TOTAL_STEPS}</p>
             <h2 className="text-3xl font-bold text-white mb-8">Aller simple ou aller-retour ?</h2>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               {[
                 { label: '🚌 Aller simple', value: false },
                 { label: '🔄 Aller-retour', value: true },
@@ -451,10 +451,10 @@ export default function NeoTravelForm() {
                   type="button"
                   onClick={() => { update('aller_retour', value); setTimeout(goNext, 250); }}
                   className={`
-                    flex-1 max-w-xs py-5 px-6 rounded-xl border-2 text-base font-semibold transition-all
+                    w-full sm:flex-1 sm:max-w-xs py-5 px-6 rounded-xl border-2 text-base font-semibold transition-all
                     ${data.aller_retour === value
-                      ? 'border-olive bg-blue-50 text-blue-700'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'}
+                      ? 'border-olive bg-olive/20 text-white'
+                      : 'border-white/20 bg-white/10 text-white/70 hover:border-olive hover:text-white'}
                   `}
                 >
                   {label}
@@ -503,7 +503,7 @@ export default function NeoTravelForm() {
             <p className="text-gray-500 mb-8">Type de groupe, horaires précis, contraintes particulières… (facultatif)</p>
             <textarea
               ref={inputRef as React.Ref<HTMLTextAreaElement>}
-              className="w-full max-w-md border-2 border-gray-200 focus:border-olive outline-none text-base p-3 rounded-xl bg-white text-navy placeholder-gray-400 transition-colors resize-none"
+              className="w-full max-w-md border-2 border-white/20 focus:border-olive outline-none text-base p-3 rounded-xl bg-white/10 text-white placeholder-white/40 transition-colors resize-none"
               rows={4}
               placeholder="Ex. Groupe scolaire, départ à 8h, retour avant 20h..."
               value={data.notes}
@@ -542,8 +542,8 @@ export default function NeoTravelForm() {
               className={`
                 w-full max-w-md py-4 rounded-xl font-semibold text-lg transition-all
                 ${submitting
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-olive hover:bg-white text-navy shadow-md'}
+                  ? 'bg-white/20 text-white/50 cursor-not-allowed'
+                  : 'bg-olive hover:bg-olive/80 text-navy shadow-md'}
               `}
             >
               {submitting ? 'Envoi en cours…' : 'Envoyer ma demande →'}
@@ -583,7 +583,7 @@ export default function NeoTravelForm() {
           <div className="mt-8 flex items-center gap-4">
             <button
               onClick={goNext}
-              className="bg-olive hover:bg-white text-navy font-semibold px-8 py-3 rounded-xl transition-colors"
+              className="bg-olive hover:bg-olive/80 text-navy font-semibold px-8 py-3 rounded-xl transition-colors"
             >
               Continuer →
             </button>

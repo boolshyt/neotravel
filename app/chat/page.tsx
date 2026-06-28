@@ -68,7 +68,7 @@ function Bubble({ msg }: { msg: Message }) {
     <div className={`flex items-end gap-3 mb-4 ${isUser ? 'flex-row-reverse' : ''}`}>
       {/* Avatar */}
       {isUser ? (
-        <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-navy border border-white/30 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
           V
         </div>
       ) : (
@@ -180,7 +180,7 @@ export default function ChatPage() {
           E
         </div>
         <div>
-          <p className="font-semibold text-white text-sm">Emma</p>
+          <p className="font-semibold text-navy text-sm">Emma</p>
           <p className="text-xs text-gray-500">Conseillère Transport · NeoTravel</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
