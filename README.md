@@ -5,7 +5,7 @@ Ce dépôt contient le prototype technique de la solution d'automatisation des d
 L'objectif : qualifier les besoins clients en langage naturel via un agent IA (Emma), calculer les prix de manière déterministe via un moteur de règles TypeScript, et gérer le passage de relais à un conseiller humain (HITL) pour les dossiers complexes.
 
 **Démo live :** https://neotravel-seven.vercel.app  
-**Équipe :** Inde Hadoui· Gendell Janssens · Yahia Baakili ·
+**Équipe :** Gendell Janssens · Yahia Baakili · Inde Hadoui  
 **Hackathon :** Epitech Interstellabs — Juillet 2026
 
 ---
@@ -196,6 +196,10 @@ npm test
 Base : `apphcmnoff5FWbIX4` — Tables : Demandes · Devis · Clients
 
 Statuts pipeline : `Nouveau Lead → Incomplet → Qualifié → Devis envoyé → Relance 1 → Relance 2 → Accepté → Refusé`
+
+### 📊 Dashboard de pilotage commercial
+
+👉 [Accéder au dashboard Airtable](https://airtable.com/apphcmnoff5FWbIX4/shrC24B6sbC19s5gn)
 
 ---
 
