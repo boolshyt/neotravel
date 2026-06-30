@@ -5,8 +5,8 @@
  * Garde l'URL du webhook côté serveur — jamais exposée au navigateur.
  *
  * Body attendu : { sessionId: string, message: string }
- * Body transmis à n8n : { sessionId, chatInput }
- * Réponse de n8n : { output: string } ou texte brut
+ * Body transmis à n8n : { sessionId, message }
+ * Réponse de n8n : { reply: string, status: string } (Formater Reponse node)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -34,13 +34,28 @@ export async function POST(req: NextRequest) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         sessionId: body.sessionId || 'default-session',
-        chatInput: body.message,
+        message: body.message,
       }),
     });
 
     if (!n8nRes.ok) {
       const text = await n8nRes.text().catch(() => '');
       console.error('Emma webhook error:', n8nRes.status, text);
+
+      // Gemini free-tier rate limit — return 200 with friendly retry message
+      // so the UI shows it as a chat bubble, not a hard error
+      const isRateLimit = n8nRes.status === 429 ||
+        text.toLowerCase().includes('too many') ||
+        text.toLowerCase().includes('rate') ||
+        text.toLowerCase().includes('quota');
+
+      if (isRateLimit) {
+        return NextResponse.json(
+          { reply: "Je suis momentanément surchargée. Réessayez dans 30 secondes 🙏" },
+          { status: 200 }
+        );
+      }
+
       return NextResponse.json(
         { error: "Emma n'est pas disponible pour le moment." },
         { status: 502 }
@@ -53,8 +68,9 @@ export async function POST(req: NextRequest) {
 
     if (contentType.includes('application/json')) {
       const data = await n8nRes.json();
-      // n8n AI Agent renvoie { output: "..." } ou { message: "..." }
-      reply = data.output || data.message || data.text || JSON.stringify(data);
+      // Formater Reponse node renvoie { reply: "...", status: "..." }
+      // Fallbacks pour compatibilité avec d'autres formats n8n
+      reply = data.reply || data.output || data.message || data.text || JSON.stringify(data);
     } else {
       reply = await n8nRes.text();
     }
